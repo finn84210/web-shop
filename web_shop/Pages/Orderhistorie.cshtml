@@ -1,0 +1,50 @@
+@page
+@model OrderhistorieModel
+@{
+    ViewData["Title"] = "Orderhistorie";
+}
+
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Mijn account</p>
+        <h1>Orderhistorie</h1>
+        <p class="lead">Bestellingen van @Model.CustomerName, met producten en totaalbedragen.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="/Bestellen">Nieuwe bestelling</a>
+</section>
+
+@if (!string.IsNullOrWhiteSpace(Model.SuccessMessage))
+{
+    <div class="alert alert-success" role="status">@Model.SuccessMessage</div>
+}
+
+<section class="history-list" aria-label="Orders">
+    @if (!Model.Orders.Any())
+    {
+        <div class="empty-state">
+            <h2>Geen orders gevonden</h2>
+            <p>Voor deze selectie zijn nog geen bestellingen geplaatst.</p>
+            <a class="btn btn-primary" asp-page="/Bestellen">Plaats eerste bestelling</a>
+        </div>
+    }
+    else
+    {
+        @foreach (var order in Model.Orders)
+        {
+            <article class="history-item">
+                <div>
+                    <p class="eyebrow">Order #@order.Id</p>
+                    <h2>@order.Customer.Name</h2>
+                    <p>@order.OrderDate.ToString("dd-MM-yyyy HH:mm")</p>
+                </div>
+                <div class="history-products">
+                    @foreach (var product in order.Products)
+                    {
+                        <span>@product.Name</span>
+                    }
+                </div>
+                <strong>@order.Products.Sum(p => p.Price).ToString("C")</strong>
+            </article>
+        }
+    }
+</section>

@@ -1,0 +1,42 @@
+@page
+@model LoginModel
+@{
+    ViewData["Title"] = "Inloggen";
+}
+
+<section class="login-view">
+    <div class="login-showcase">
+        <p class="eyebrow">Matrix Inc. shop</p>
+        <h1>Log in om je bestelling te plaatsen</h1>
+        <p>Bekijk producten, gebruik je winkelmandje en volg je bestelgeschiedenis vanuit je eigen klantomgeving.</p>
+    </div>
+
+    <form method="post" class="login-card">
+        <input type="hidden" name="returnUrl" value="@Model.ReturnUrl" />
+        <div>
+            <p class="eyebrow">Klantportaal</p>
+            <h2>Inloggen</h2>
+            <p class="login-hint">Gebruik Neo, Morpheus of Trinity met wachtwoord <strong>matrix123</strong>.</p>
+        </div>
+
+        <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+
+        <div>
+            <label asp-for="CustomerName" class="form-label"></label>
+            <input asp-for="CustomerName" class="form-control form-control-lg" autocomplete="username" />
+            <span asp-validation-for="CustomerName" class="text-danger"></span>
+        </div>
+
+        <div>
+            <label asp-for="Password" class="form-label"></label>
+            <input asp-for="Password" class="form-control form-control-lg" autocomplete="current-password" />
+            <span asp-validation-for="Password" class="text-danger"></span>
+        </div>
+
+        <button class="btn btn-primary btn-lg w-100" type="submit">Inloggen</button>
+    </form>
+</section>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

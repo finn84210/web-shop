@@ -1,0 +1,39 @@
+@page "/Winkelmandje"
+@model WinkelmandjeModel
+@{
+    ViewData["Title"] = "Winkelmandje";
+}
+
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Checkout</p>
+        <h1>Winkelmandje</h1>
+        <p class="lead">Controleer je producten en plaats je bestelling.</p>
+    </div>
+    <a class="btn btn-outline-dark" asp-page="/Bestellen">Verder winkelen</a>
+</section>
+
+<form method="post" class="cart-page">
+    <section class="cart-list" id="cart-list" data-products='@System.Text.Json.JsonSerializer.Serialize(Model.Products.Select(product => new { product.Id, product.Name, product.Description, product.Category, product.Price, product.Stock }))'>
+        <div class="empty-state" id="empty-cart">
+            <h2>Je winkelmandje is leeg</h2>
+            <p>Voeg eerst producten toe vanuit de productcatalogus.</p>
+            <a class="btn btn-primary" asp-page="/Bestellen">Bekijk producten</a>
+        </div>
+    </section>
+
+    <aside class="cart-summary">
+        <p class="eyebrow">Overzicht</p>
+        <h2>Bestelling</h2>
+        <div class="order-summary">
+            <span>Producten</span>
+            <strong id="selected-count">0</strong>
+        </div>
+        <div class="order-total">
+            <span>Totaal</span>
+            <strong id="selected-total">€ 0,00</strong>
+        </div>
+        <button class="btn btn-primary btn-lg w-100" type="submit">Bestelling plaatsen</button>
+        <span asp-validation-for="SelectedProductIds" class="text-danger d-block mt-2"></span>
+    </aside>
+</form>

@@ -1,0 +1,103 @@
+﻿@page
+@model IndexModel
+@{
+    ViewData["Title"] = "Home";
+}
+
+<section class="hero">
+    <div class="hero-content">
+        <p class="eyebrow">Matrix Inc. webshop</p>
+        <h1>Bestel scheepssystemen en onderdelen online</h1>
+        <p>Log in als klant, stel je winkelmand samen en bekijk je eerdere Matrix Inc. orders in een eigen klantomgeving.</p>
+        <div class="hero-actions">
+            <a class="btn btn-primary btn-lg" asp-page="/Bestellen">Shop producten</a>
+            <a class="btn btn-outline-light btn-lg" asp-page="/Orderhistorie">Orderhistorie</a>
+        </div>
+    </div>
+</section>
+
+@if (User.Identity?.IsAuthenticated == true)
+{
+    <section class="customer-dashboard" aria-label="Klantomgeving">
+        <article>
+            <p class="eyebrow">Welkom terug</p>
+            <h2>@User.Identity.Name</h2>
+            <p>Bekijk de catalogus of ga direct naar je eigen orderhistorie.</p>
+        </article>
+        <div class="customer-dashboard-actions">
+            <a class="btn btn-primary" asp-page="/Bestellen">Shop producten</a>
+            <a class="btn btn-outline-dark" asp-page="/Orderhistorie">Mijn orders</a>
+        </div>
+    </section>
+}
+else
+{
+    <section class="stats-grid" aria-label="Webshop status">
+        <article>
+            <span>Producten</span>
+            <strong>@Model.ProductCount</strong>
+        </article>
+        <article>
+            <span>Direct bestellen</span>
+            <strong>24/7</strong>
+        </article>
+        <article>
+            <span>Klantportaal</span>
+            <strong>Login</strong>
+        </article>
+    </section>
+}
+
+<section class="content-section">
+    <div class="section-title section-title-row">
+        <div>
+            <p class="eyebrow">Catalogus</p>
+            <h2>Populaire producten</h2>
+        </div>
+            <a class="btn btn-outline-dark" asp-page="/Bestellen">Alles bekijken</a>
+    </div>
+
+    <div class="storefront-grid">
+        @foreach (var product in Model.FeaturedProducts)
+        {
+            <article class="storefront-card">
+                <div class="product-card-media">
+                    <span>@product.Name.Substring(0, 1)</span>
+                </div>
+                <div>
+                    <span class="category-pill">@product.Category</span>
+                    <h3>@product.Name</h3>
+                    <p>@product.Description</p>
+                </div>
+                <div class="product-meta">
+                    <span>@product.Stock op voorraad</span>
+                    <strong class="product-price">@product.Price.ToString("C")</strong>
+                </div>
+                <div class="product-actions">
+                    <a class="btn btn-outline-dark" asp-page="/ProductDetails" asp-route-id="@product.Id">Details</a>
+                    @if (product.Stock > 0)
+                    {
+                        <button class="btn btn-primary add-to-cart" type="button" data-product-id="@product.Id">In winkelmand</button>
+                    }
+                    else
+                    {
+                        <button class="btn btn-secondary" type="button" disabled>Uitverkocht</button>
+                    }
+                </div>
+            </article>
+        }
+    </div>
+</section>
+
+@if (User.Identity?.IsAuthenticated != true)
+{
+    <section class="content-section">
+        <div class="section-title">
+            <p class="eyebrow">Klantportaal</p>
+            <h2>Log in om te bestellen</h2>
+        </div>
+
+        <p class="lead">Klanten kunnen na het inloggen producten bestellen en alleen hun eigen orderhistorie bekijken.</p>
+        <a class="btn btn-primary" asp-page="/Login">Inloggen</a>
+    </section>
+}

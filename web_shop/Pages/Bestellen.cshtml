@@ -1,0 +1,104 @@
+@page "/Producten"
+@model BestellenModel
+@{
+    ViewData["Title"] = "Producten";
+}
+
+<section class="page-heading">
+    <div>
+        <p class="eyebrow">Matrix Inc. webshop</p>
+        <h1>Producten</h1>
+        <p class="lead">Bekijk producten, filter de catalogus en voeg items toe aan je winkelmand.</p>
+    </div>
+    <a class="btn btn-primary" asp-page="/Winkelmandje">Winkelmandje</a>
+</section>
+
+<div class="catalog-area">
+        <section class="catalog-filter" aria-label="Productfilters">
+            <div>
+                <label asp-for="SearchTerm" class="form-label">Zoeken</label>
+                <input asp-for="SearchTerm" class="form-control" form="catalog-filter-form" placeholder="Naam of omschrijving" />
+            </div>
+            <div>
+                <label asp-for="Category" class="form-label">Categorie</label>
+                <select asp-for="Category" class="form-select" form="catalog-filter-form">
+                    <option value="">Alle categorieen</option>
+                    @foreach (var category in Model.Categories)
+                    {
+                        <option value="@category">@category</option>
+                    }
+                </select>
+            </div>
+            <div>
+                <label asp-for="MinPrice" class="form-label">Min. prijs</label>
+                <input asp-for="MinPrice" class="form-control" form="catalog-filter-form" type="number" step="0.01" min="0" />
+            </div>
+            <div>
+                <label asp-for="MaxPrice" class="form-label">Max. prijs</label>
+                <input asp-for="MaxPrice" class="form-control" form="catalog-filter-form" type="number" step="0.01" min="0" />
+            </div>
+            <div>
+                <label asp-for="SortBy" class="form-label">Sorteren</label>
+                <select asp-for="SortBy" class="form-select" form="catalog-filter-form">
+                    <option value="name">Naam A-Z</option>
+                    <option value="price-asc">Prijs laag-hoog</option>
+                    <option value="price-desc">Prijs hoog-laag</option>
+                    <option value="stock">Voorraad</option>
+                </select>
+            </div>
+            <div class="catalog-filter-actions">
+                <button class="btn btn-primary" type="submit" form="catalog-filter-form">Filter</button>
+                <a class="btn btn-outline-dark" asp-page="/Bestellen">Reset</a>
+            </div>
+        </section>
+
+        <div class="catalog-result-count">@Model.Products.Count product@(Model.Products.Count == 1 ? "" : "en") gevonden</div>
+
+        <section class="product-grid" aria-label="Producten">
+            @if (!Model.Products.Any())
+            {
+                <div class="empty-state">
+                    <h2>Geen producten gevonden</h2>
+                    <p>Pas je filters aan om meer producten te zien.</p>
+                    <a class="btn btn-primary" asp-page="/Bestellen">Alle producten tonen</a>
+                </div>
+            }
+            else
+            {
+                @foreach (var product in Model.Products)
+                {
+                    <article class="product-card">
+                        <span class="product-card-content">
+                            <span class="product-card-media">
+                                <span>@product.Name.Substring(0, 1)</span>
+                            </span>
+                            <span class="category-pill">@product.Category</span>
+                            <span class="product-name">@product.Name</span>
+                            <span class="product-description">@product.Description</span>
+                            <span class="product-meta">
+                                <span>@product.Stock op voorraad</span>
+                                <strong class="product-price">@product.Price.ToString("C")</strong>
+                            </span>
+                            <span class="product-actions">
+                                <a class="btn btn-outline-dark" asp-page="/ProductDetails" asp-route-id="@product.Id">Details</a>
+                                @if (product.Stock > 0)
+                                {
+                                    <button class="btn btn-primary add-to-cart" type="button" data-product-id="@product.Id">In winkelmand</button>
+                                }
+                                else
+                                {
+                                    <button class="btn btn-secondary" type="button" disabled>Uitverkocht</button>
+                                }
+                            </span>
+                        </span>
+                    </article>
+                }
+            }
+        </section>
+</div>
+
+<form id="catalog-filter-form" method="get"></form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
