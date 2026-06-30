@@ -27,7 +27,7 @@ namespace web_shop.Pages
         public IList<Product> Products { get; private set; } = new List<Product>();
 
         [BindProperty]
-        public List<int> SelectedProductIds { get; set; } = new();
+        public List<CartItemInput> CartItems { get; set; } = new();
 
         [TempData]
         public string? SuccessMessage { get; set; }
@@ -48,9 +48,19 @@ namespace web_shop.Pages
                 return RedirectToPage("/Login", new { returnUrl = Url.Page("/Winkelmandje") });
             }
 
-            if (!SelectedProductIds.Any())
+            var requestedItems = CartItems
+                .Where(item => item.ProductId > 0 && item.Quantity > 0)
+                .GroupBy(item => item.ProductId)
+                .Select(group => new CartItemInput
+                {
+                    ProductId = group.Key,
+                    Quantity = group.Sum(item => item.Quantity)
+                })
+                .ToList();
+
+            if (!requestedItems.Any())
             {
-                ModelState.AddModelError(nameof(SelectedProductIds), "Je winkelmandje is leeg.");
+                ModelState.AddModelError(nameof(CartItems), "Je winkelmandje is leeg.");
                 return Page();
             }
 
@@ -70,26 +80,26 @@ namespace web_shop.Pages
                 ExternalReference = $"WEB-{DateTime.Now:yyyyMMddHHmmss}"
             };
 
-            // Elk gekozen product komt in dezelfde bestelling.
-            foreach (var productId in SelectedProductIds.Distinct())
+            // Elk gekozen product komt in dezelfde bestelling. Het aantal bepaalt de voorraadverlaging.
+            foreach (var item in requestedItems)
             {
-                var product = _productRepository.GetProductById(productId);
+                var product = _productRepository.GetProductById(item.ProductId);
                 if (product is not null)
                 {
-                    if (product.Stock <= 0)
+                    if (product.Stock < item.Quantity)
                     {
-                        ModelState.AddModelError(nameof(SelectedProductIds), $"{product.Name} is niet meer op voorraad.");
+                        ModelState.AddModelError(nameof(CartItems), $"Er zijn nog maar {product.Stock} stuks van {product.Name} op voorraad.");
                         return Page();
                     }
 
-                    product.Stock -= 1;
+                    product.Stock -= item.Quantity;
                     order.Products.Add(product);
                 }
             }
 
             if (!order.Products.Any())
             {
-                ModelState.AddModelError(nameof(SelectedProductIds), "De gekozen producten bestaan niet meer.");
+                ModelState.AddModelError(nameof(CartItems), "De gekozen producten bestaan niet meer.");
                 return Page();
             }
 
@@ -108,6 +118,13 @@ namespace web_shop.Pages
         {
             var customerIdClaim = User.FindFirstValue(ClaimTypes.NameIdentifier);
             return int.TryParse(customerIdClaim, out var customerId) ? customerId : null;
+        }
+
+        public class CartItemInput
+        {
+            public int ProductId { get; set; }
+
+            public int Quantity { get; set; }
         }
     }
 }
